@@ -17,8 +17,7 @@ export default function Home() {
   const [tagLine, setTagLine] = useState<string>('');
   const [puuid, setPuuid] = useState<string>('');
   const [summonerData, setSummonerData] = useState<SummonerData | null>(null);
-  const [matchDetails, setMatchDetails] = useState<Match[]>([]); // Store match details here
-
+  const [matchDetails, setMatchDetails] = useState<Match[]>([]);
   const handleSearch = async () => {
     try {
       // Fetch PUUID by Riot ID (gameName + tagLine)
