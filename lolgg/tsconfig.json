@@ -24,5 +24,10 @@
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "baseUrl": ".",
+  "paths": {
+    "@components/*": ["components/*"],
+    "@styles/*": ["styles/*"]
+  }
 }
