@@ -72,6 +72,7 @@ const SummonerPage = () => {
     fetchMatchDetails();
   }, [puuid]);
 
+  // Fourth useEffect: fetch current league data when summonerData is set (works
   useEffect(() => {
     async function fetchCurrentLeague() {
       if (summonerData?.id) {
@@ -88,64 +89,77 @@ const SummonerPage = () => {
   return (
     <>
       <Header />
-      <div className='container mx-auto'>
-        <div className='mx-auto flex'>
-          <div>
-            {summonerData && (
-              <Image
-                src={`https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/${summonerData.profileIconId}.png`}
-                alt=""
-                width={100}
-                height={100}
-                className='rounded-full'
-              />
+      <div className='container mx-auto m-5'>
+        <div className='container mx-auto'>
+          <div className='mx-auto flex bg-gray-200 rounded-lg p-4'>
+            <div className='flex justify-center relative'>
+              {summonerData && (
+                <Image
+                  src={`https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/${summonerData.profileIconId}.png`}
+                  alt=""
+                  width={100}
+                  height={100}
+                  className='rounded-full'
+                />
+              )}
+              <p className='absolute bg-white rounded-lg mx-auto -bottom-2'>{summonerData?.summonerLevel || 'Loading'}</p>
+
+            </div>
+            <div className='p-2'>
+              <div className='flex'>
+                <strong >{gameName}</strong>
+                <p className='text-gray-600'>#{tag}</p>
+              </div>
+              <p>{regionState || 'Loading...'}</p>
+            </div>
+
+          </div>
+        </div>
+        <div className='container mx-auto flex my-10 gap-5'>
+          <div className='w-2/6 bg-gray-200 rounded-md p-5'>
+            {/* Display League Data */}
+            {league ? (
+              <div>
+                <div className='flex items-center'>
+                  <Image
+                    alt='League Rank'
+                    src={getRankImage(league[0].tier)}
+                    width={100}
+                    height={100} />
+                  <div>
+                    <p className='font-bold pt-3'>{league[0].tier} {league[0].rank}</p>
+                    <p className='text-gray-600 text-xs'>LP: {league[0].leaguePoints}</p>
+                    <p className='text-gray-600 text-xs'>{league[0].wins}W {league[0].losses}L</p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p>Loading...</p>
             )}
           </div>
-          <div>
-            <p>{gameName}#{tag}</p>
-            <p>{regionState || 'Loading...'}</p>
-            <p>Level: {summonerData?.summonerLevel || 'Loading'}</p>
+          <div className='w-4/6'>
+            {/* Display Match History */}
+            {matchDetails.length > 0 ? (
+              <div>
+                <h2>Match History:</h2>
+                <ul className='max-h-fit'>
+                  {matchDetails.map((match) => (
+                    <li key={match.metadata.matchId}>
+                      <p>Champion Played: {findChampionPlayed(match.info.participants, puuid)}</p>
+                      <p>Queue: {getMatchType(match.info.queueId)}</p>
+                      <p>Season: {match.info.gameVersion.slice(0, 5)}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <p>Loading...</p>
+            )}
           </div>
 
         </div>
       </div>
-      <div className='container mx-auto flex my-10'>
-        <div className='w-1/4'>
-          {/* Display League Data */}
-          {league ? (
-            <div>
-              <h2>Current League:</h2>
-              <p>Tier: {league[0].tier}</p>
-              <p>Rank: {league[0].rank}</p>
-              <p>LP: {league[0].leaguePoints}</p>
-              <p>Wins: {league[0].wins}</p>
-              <p>Losses: {league[0].losses}</p>
-            </div>
-          ) : (
-            <p>Loading...</p>
-          )}
-        </div>
-        <div className='w-3/4'>
-          {/* Display Match History */}
-          {matchDetails.length > 0 ? (
-            <div>
-              <h2>Match History:</h2>
-              <ul className='max-h-fit'>
-                {matchDetails.map((match) => (
-                  <li key={match.metadata.matchId}>
-                    <p>Champion Played: {findChampionPlayed(match.info.participants, puuid)}</p>
-                    <p>Queue: {getMatchType(match.info.queueId)}</p>
-                    <p>Season: {match.info.gameVersion.slice(0, 5)}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <p>Loading...</p>
-          )}
-        </div>
 
-      </div>
 
     </>
   );
@@ -171,6 +185,10 @@ function getMatchType(queueId: number): string {
     default:
       return "Unknown Match Type";
   }
+}
+
+const getRankImage = (tier: string) => {
+  return `https://opgg-static.akamaized.net/images/medals_new/${tier.toLowerCase()}.png`;
 }
 
 export default SummonerPage;
