@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import React from 'react';
 import Image from 'next/image';
 import Header from '../../../components/header';
-import { Match, SummonerData } from '../../../types';
+import { League, Match, SummonerData } from '../../../types';
 
 
 const SummonerPage = () => {
@@ -19,6 +19,8 @@ const SummonerPage = () => {
   const [puuid, setPuuid] = useState<string | undefined>(undefined);
   const [summonerData, setSummonerData] = useState<SummonerData | undefined>(undefined);
   const [matchDetails, setMatchDetails] = useState<Match[]>([]);
+  const [league, setLeague] = useState<League[] | undefined>(undefined);
+
   // First useEffect: fetch account data and set puuid (works)
   useEffect(() => {
     async function fetchAccountData() {
@@ -70,54 +72,81 @@ const SummonerPage = () => {
     fetchMatchDetails();
   }, [puuid]);
 
+  useEffect(() => {
+    async function fetchCurrentLeague() {
+      if (summonerData?.id) {
+        const leagueResponse = await fetch(`/api/currentLeague?summonerId=${summonerData?.id}`);
+        const league: League[] = await leagueResponse.json();
+        setLeague(league);
+        console.log(league);
+      }
+    }
+    fetchCurrentLeague();
+  }, [summonerData?.id]);
+
 
   return (
     <>
       <Header />
       <div className='container mx-auto'>
-        <div className='content-header mx-auto'>
-          <h1>Summoner</h1>
-          {summonerData && (
-            <Image
-              src={`https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/${summonerData.profileIconId}.png`}
-              alt=""
-              width={100}
-              height={100}
-              className='rounded-full'
-            />
-          )}
-          <p>Region: {regionState || 'Loading...'}</p>
-          <p>Game Name: {gameName || 'Loading...'}</p>
-          <p>Tag: {tag || 'Loading...'}</p>
-          <p>Level: {summonerData?.summonerLevel || 'Loading'}</p>
-          <p>{puuid}</p>
-        </div >
-      </div >
-
-      <div className='w-1/4'>
-
-      </div>
-      <div className='w-3/4'>
-        {/* Display Match History */}
-        {matchDetails.length > 0 ? (
+        <div className='mx-auto flex'>
           <div>
-            <h2>Match History:</h2>
-            <ul>
-              {matchDetails.map((match) => (
-                <li key={match.metadata.matchId}>
-                  <p>Game ID: {match.metadata.matchId}</p>
-                  <p>Champion Played: {findChampionPlayed(match.info.participants, puuid)}</p>
-                  <p>Queue: {match.info.gameMode}</p>
-                  <p>Season: {match.info.gameVersion}</p>
-                  <p>Date Played: </p>
-                </li>
-              ))}
-            </ul>
+            {summonerData && (
+              <Image
+                src={`https://ddragon.leagueoflegends.com/cdn/14.20.1/img/profileicon/${summonerData.profileIconId}.png`}
+                alt=""
+                width={100}
+                height={100}
+                className='rounded-full'
+              />
+            )}
           </div>
-        ) : (
-          <p>Loading...</p>
-        )}
+          <div>
+            <p>{gameName}#{tag}</p>
+            <p>{regionState || 'Loading...'}</p>
+            <p>Level: {summonerData?.summonerLevel || 'Loading'}</p>
+          </div>
+
+        </div>
       </div>
+      <div className='container mx-auto flex my-10'>
+        <div className='w-1/4'>
+          {/* Display League Data */}
+          {league ? (
+            <div>
+              <h2>Current League:</h2>
+              <p>Tier: {league[0].tier}</p>
+              <p>Rank: {league[0].rank}</p>
+              <p>LP: {league[0].leaguePoints}</p>
+              <p>Wins: {league[0].wins}</p>
+              <p>Losses: {league[0].losses}</p>
+            </div>
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
+        <div className='w-3/4'>
+          {/* Display Match History */}
+          {matchDetails.length > 0 ? (
+            <div>
+              <h2>Match History:</h2>
+              <ul className='max-h-fit'>
+                {matchDetails.map((match) => (
+                  <li key={match.metadata.matchId}>
+                    <p>Champion Played: {findChampionPlayed(match.info.participants, puuid)}</p>
+                    <p>Queue: {getMatchType(match.info.queueId)}</p>
+                    <p>Season: {match.info.gameVersion.slice(0, 5)}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
+
+      </div>
+
     </>
   );
 }
@@ -125,6 +154,23 @@ const SummonerPage = () => {
 const findChampionPlayed = (participants, puuid) => {
   const participant = participants.find((p) => p.puuid === puuid);
   return participant.championName;
+}
+
+function getMatchType(queueId: number): string {
+  switch (queueId) {
+    case 420:
+      return "Ranked Solo/Duo";
+    case 430:
+      return "Normal Blind";
+    case 440:
+      return "Ranked Flex";
+    case 400:
+      return "Normal Draft";
+    case 450:
+      return "ARAM";
+    default:
+      return "Unknown Match Type";
+  }
 }
 
 export default SummonerPage;

@@ -6,7 +6,25 @@ export interface SummonerData {
     summonerLevel: number;
     puuid: string;
     profileIconId: number;
-  }
+}
+
+// LEAGUE
+export interface League {
+    leagueId:     string;
+    queueType:    string;
+    tier:         string;
+    rank:         string;
+    summonerId:   string;
+    leaguePoints: number;
+    wins:         number;
+    losses:       number;
+    veteran:      boolean;
+    inactive:     boolean;
+    freshBlood:   boolean;
+    hotStreak:    boolean;
+}
+
+
 
 // MATCHES
 export interface Match {

@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { puuid } = req.query;
+  const { summonerId } = req.query;
 
   try {
     const response = await fetch(
-      `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=10`,
+      `https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}`,
       {
         headers: {
           'X-Riot-Token': process.env.RIOT_API_KEY || '',
