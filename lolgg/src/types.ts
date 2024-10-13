@@ -1,3 +1,14 @@
+// SUMMONER
+export interface SummonerData {
+    id: string;
+    accountId: string;
+    name: string;
+    summonerLevel: number;
+    puuid: string;
+    profileIconId: number;
+  }
+
+// MATCHES
 export interface Match {
     metadata: Metadata;
     info:     Info;

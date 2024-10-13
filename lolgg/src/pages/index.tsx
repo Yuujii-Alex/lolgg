@@ -4,18 +4,15 @@ import { useRouter } from 'next/router';
 
 import Header from '../components/header';
 
-
-
 export default function Home() {
   const [gameName, setGameName] = useState<string>('');
   const [tagLine, setTagLine] = useState<string>('');
-  const [region, setRegion] = useState<string>('');
+  const [region, setRegion] = useState<string>('Europe');
   const router = useRouter();
 
   const handleSearch = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    // Navigate to the dynamic route: /summoners/[region]/[gameName]-[tagLine]
     router.push(`/summoners/${region}/${gameName}-${tagLine}`);    
   };
 
@@ -40,11 +37,11 @@ export default function Home() {
                 <select
                   value={region}
                   onChange={(e) => setRegion(e.target.value)} 
-                  id="countries" 
+                  id="countries"
                   className="bg-gray-300 border border-gray-300 text-sm rounded-lg block w-full py-2">
                   <option value="America">America</option>
                   <option value="Asia">Asia</option>
-                  <option defaultValue={'Europe'} value="Europe">Europe</option>
+                  <option value="Europe">Europe</option>
                 </select>
               </div>
             </div>
